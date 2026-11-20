@@ -1,5 +1,6 @@
 import * as THREE from 'three'
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js'
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js'
 
 /**
  * STAGE 1 — Scene, camera, renderer, render loop
@@ -75,6 +76,20 @@ const renderer = new THREE.WebGLRenderer({ canvas, antialias: true })
 renderer.setSize(sizes.width, sizes.height)
 renderer.setPixelRatio(sizes.pixelRatio)
 
+
+const controls = new OrbitControls(camera, canvas)
+controls.enableDamping = true
+controls.autoRotate = true
+controls.autoRotateSpeed = 1
+controls.enablePan = false
+controls.minDistance = 2.5
+controls.maxDistance = 8
+
+controls.addEventListener('start', () => {
+  controls.autoRotate = false
+})
+
+
 // ---------------------------------------------------------------------------
 // Resize — update sizes, camera aspect, and renderer when the window changes
 // ---------------------------------------------------------------------------
@@ -100,13 +115,12 @@ timer.connect(document) // pauses the delta while the tab is hidden
 const tick = (timestamp) => {
   timer.update(timestamp)
   const elapsed = timer.getElapsed() // seconds since start
-
   // Animate: slow turntable spin + gentle float
   if (shoe) {
-    shoe.rotation.y = elapsed * 0.5
     shoe.position.y = Math.sin(elapsed * 1.5) * 0.05
   }
 
+  controls.update()
 
   renderer.render(scene, camera)
   window.requestAnimationFrame(tick)
