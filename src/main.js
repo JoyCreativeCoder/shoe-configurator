@@ -1,4 +1,5 @@
 import * as THREE from 'three'
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js'
 
 /**
  * STAGE 1 — Scene, camera, renderer, render loop
@@ -17,16 +18,38 @@ const canvas = document.querySelector('canvas.webgl')
 const scene = new THREE.Scene()
 scene.background = new THREE.Color('#0b0d12')
 
+const ambientLight = new THREE.AmbientLight('#ffffff', 0.5) // soft white light
+scene.add(ambientLight)
+
+const directionalLight = new THREE.DirectionalLight('#ffffff', 1)
+directionalLight.position.set(5, 5, 5)
+scene.add(directionalLight)
+
 // ---------------------------------------------------------------------------
 // Placeholder object — stands in for the shoe until we load the glTF (stage 2)
 // Mesh = Geometry (the shape) + Material (how its surface looks)
 // MeshNormalMaterial colours faces by their direction, so it needs no lights.
 // ---------------------------------------------------------------------------
-const placeholder = new THREE.Mesh(
-  new THREE.BoxGeometry(1.6, 0.6, 0.7),
-  new THREE.MeshNormalMaterial()
-)
-scene.add(placeholder)
+
+const gltfLoader = new GLTFLoader()
+let shoe = null
+
+gltfLoader.load('models/shoe.glb', (gltf) => {
+  const model = gltf.scene
+  const box = new THREE.Box3().setFromObject(model)
+  const size = box.getSize(new THREE.Vector3())
+  const longest = Math.max(size.x, size.y, size.z)
+  model.scale.setScalar(2 / longest) // scale to fit in a 1x1x1 box
+
+  box.setFromObject(model) // recalc box after scaling
+  const center = box.getCenter(new THREE.Vector3())
+  model.position.sub(center) // center the model at the origin
+
+  shoe = new THREE.Group()
+  shoe.add(model)
+  scene.add(shoe)
+})
+
 
 // ---------------------------------------------------------------------------
 // Sizes — keep the canvas full-window and track the viewport
@@ -42,7 +65,7 @@ const sizes = {
 // ---------------------------------------------------------------------------
 const camera = new THREE.PerspectiveCamera(35, sizes.width / sizes.height, 0.1, 100)
 camera.position.set(2.5, 1.5, 4)
-camera.lookAt(placeholder.position)
+camera.lookAt(new THREE.Vector3(0, 0, 0))
 scene.add(camera)
 
 // ---------------------------------------------------------------------------
@@ -79,8 +102,11 @@ const tick = (timestamp) => {
   const elapsed = timer.getElapsed() // seconds since start
 
   // Animate: slow turntable spin + gentle float
-  placeholder.rotation.y = elapsed * 0.5
-  placeholder.position.y = Math.sin(elapsed * 1.5) * 0.05
+  if (shoe) {
+    shoe.rotation.y = elapsed * 0.5
+    shoe.position.y = Math.sin(elapsed * 1.5) * 0.05
+  }
+
 
   renderer.render(scene, camera)
   window.requestAnimationFrame(tick)
