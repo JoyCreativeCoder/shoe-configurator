@@ -16,3 +16,7 @@ npm run dev
 - [ ] **Stage 3** — Lighting, environment map, realistic render
 - [ ] **Stage 4** — Raycasting: click to select shoe parts
 - [ ] **Stage 5** — Colour picker UI + camera transitions
+
+## Credits
+
+Shoe model: "MaterialsVariantsShoe" by Shopify, from the Khronos glTF Sample Assets — CC BY 4.0
