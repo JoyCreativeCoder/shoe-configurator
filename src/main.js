@@ -3,7 +3,7 @@ import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js'
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js'
 
 /**
- * STAGE 1 — Scene, camera, renderer, render loop
+ * STAGE 2 — Scene, camera, renderer, render loop
  * Course topics: "Basic Scene", "Transform Objects", "Animations",
  *                "Cameras", "Fullscreen and resizing"
  */
@@ -35,7 +35,7 @@ scene.add(directionalLight)
 const gltfLoader = new GLTFLoader()
 let shoe = null
 
-gltfLoader.load('models/shoe.glb', (gltf) => {
+gltfLoader.load('/models/shoe.glb', (gltf) => {
   const model = gltf.scene
   const box = new THREE.Box3().setFromObject(model)
   const size = box.getSize(new THREE.Vector3())
